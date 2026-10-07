@@ -4,7 +4,8 @@ Usage (from the project folder):
     python scripts/chat.py
     python scripts/chat.py --business dental-clinic
 
-It uses the real AI if GEMINI_API_KEY (or ANTHROPIC_API_KEY with LLM_PROVIDER=anthropic)
+It uses the real AI if GEMINI_API_KEY (or ANTHROPIC_API_KEY with LLM_PROVIDER=anthropic,
+or OPENAI_BASE_URL with LLM_PROVIDER=omniroute)
 is set in your .env file. Without a key it uses a tiny offline demo brain.
 
 Commands inside the chat:
@@ -50,13 +51,15 @@ class OfflineDemoLLM:
 
     async def generate(self, system: str, history: list[dict[str, str]]) -> str:
         last = history[-1]["content"] if history else ""
-        return ("(Offline demo - no API key set. Add GEMINI_API_KEY to .env for real answers.)\n"
+        return ("(Offline demo - no API key set. Set LLM_PROVIDER + key in .env for real answers.)\n"
                 f"You said: {last}")
 
 
 def has_key(settings: Settings) -> bool:
     if settings.llm_provider == "anthropic":
         return bool(settings.anthropic_api_key)
+    if settings.llm_provider in ("openai", "omniroute"):
+        return bool(settings.openai_base_url)
     return bool(settings.gemini_api_key)
 
 
