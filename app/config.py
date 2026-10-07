@@ -62,6 +62,7 @@ class Settings:
     memory_limit: int = 15
     pause_hours: int = 12  # auto-resume a paused chat after N hours (0 = never)
     log_level: str = "INFO"
+    demo_page: bool = True  # serve the browser chat demo at /demo
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -89,4 +90,5 @@ class Settings:
             memory_limit=_int("MEMORY_LIMIT", 15),
             pause_hours=_int("PAUSE_HOURS", 12),
             log_level=os.getenv("LOG_LEVEL", "INFO"),
+            demo_page=os.getenv("DEMO_PAGE", "true").strip().lower() not in ("0", "false", "no", "off"),
         )
