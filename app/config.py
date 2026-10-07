@@ -41,11 +41,14 @@ class Settings:
     graph_api_version: str = "v23.0"
 
     # AI
-    llm_provider: str = "gemini"  # "gemini" or "anthropic"
+    llm_provider: str = "gemini"  # "gemini", "anthropic" or "openai"/"omniroute"
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-haiku-4-5"
+    openai_api_key: str = ""
+    openai_base_url: str = "http://localhost:20128/v1"
+    openai_model: str = "agy/gemini-3.8-flash-high"
     llm_timeout_seconds: float = 25.0
 
     # Business
@@ -74,6 +77,9 @@ class Settings:
             gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
             anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
+            openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+            openai_base_url=os.getenv("OPENAI_BASE_URL", "http://localhost:20128/v1"),
+            openai_model=os.getenv("OPENAI_MODEL", "agy/gemini-3.8-flash-high"),
             llm_timeout_seconds=float(os.getenv("LLM_TIMEOUT_SECONDS", "25")),
             active_business=os.getenv("ACTIVE_BUSINESS", "guest-house"),
             business_dir=Path(os.getenv("BUSINESS_DIR", str(BASE_DIR / "business"))),
