@@ -264,3 +264,22 @@ def test_business_switch(harness_factory):
     h.gemini.respond(200, json=gemini_reply("ok"))
     h.post(text_payload("hi"))
     assert "Smile Care Dental Clinic" in h.llm_requests()[0]["systemInstruction"]["parts"][0]["text"]
+
+
+# ---------- OmniRoute / OpenAI-compatible provider ----------
+
+def test_omniroute_provider_selected(harness_factory):
+    h = harness_factory(llm_provider="omniroute", openai_api_key="test-omni-key",
+                        openai_base_url="http://localhost:20128/v1",
+                        openai_model="agy/gemini-3.8-flash-high")
+    route = h.router.post("http://localhost:20128/v1/chat/completions").respond(
+        200, json={"choices": [{"message": {"role": "assistant", "content": "Namaste from OmniRoute"}}]})
+    h.post(text_payload("hello"))
+    assert route.called
+    req = json.loads(route.calls[0].request.content)
+    assert req["model"] == "agy/gemini-3.8-flash-high"
+    assert req["messages"][0]["role"] == "system"
+    assert "BUSINESS INFO" in req["messages"][0]["content"]
+    assert req["messages"][-1] == {"role": "user", "content": "hello"}
+    assert route.calls[0].request.headers["authorization"] == "Bearer test-omni-key"
+    assert h.sent_texts(CUSTOMER) == ["Namaste from OmniRoute"]
