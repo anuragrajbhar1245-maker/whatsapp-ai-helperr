@@ -103,6 +103,44 @@ class GeminiProvider:
         return text
 
 
+class OpenAICompatProvider:
+    """Any OpenAI-compatible endpoint: OmniRoute (local gateway), OpenRouter, Groq, etc."""
+    name = "openai"
+
+    def __init__(self, api_key: str, model: str, base_url: str, timeout: float = 25.0) -> None:
+        self.api_key = api_key
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+
+    async def generate(self, system: str, history: list[dict[str, str]]) -> str:
+        if not self.base_url:
+            raise LLMError("OPENAI_BASE_URL is not set")
+        payload = {
+            "model": self.model,
+            "temperature": 0.4,
+            "max_tokens": 1024,
+            "messages": [{"role": "system", "content": system}, *normalize_history(history)],
+        }
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        data = await _post_with_retry(
+            f"{self.base_url}/chat/completions",
+            headers=headers, payload=payload, timeout=self.timeout, provider=self.name,
+        )
+        try:
+            content = data["choices"][0]["message"]["content"]
+            if isinstance(content, list):
+                content = "".join(c.get("text", "") for c in content if isinstance(c, dict))
+            text = (content or "").strip()
+        except (KeyError, IndexError, TypeError) as exc:
+            raise LLMError(f"openai-compatible returned an unexpected response: {str(data)[:300]}") from exc
+        if not text:
+            raise LLMError("openai-compatible returned an empty reply")
+        return text
+
+
 class AnthropicProvider:
     name = "anthropic"
 
@@ -143,6 +181,9 @@ def get_provider(settings: Settings) -> LLMProvider:
     if settings.llm_provider == "anthropic":
         return AnthropicProvider(settings.anthropic_api_key, settings.anthropic_model,
                                  settings.llm_timeout_seconds)
+    if settings.llm_provider in ("openai", "omniroute"):
+        return OpenAICompatProvider(settings.openai_api_key, settings.openai_model,
+                                    settings.openai_base_url, settings.llm_timeout_seconds)
     if settings.llm_provider not in ("gemini", ""):
         log.warning("unknown_llm_provider_using_gemini", extra={"provider": settings.llm_provider})
     return GeminiProvider(settings.gemini_api_key, settings.gemini_model, settings.llm_timeout_seconds)
