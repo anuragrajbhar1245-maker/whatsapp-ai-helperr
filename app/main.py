@@ -14,6 +14,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from .bot import Bot
 from .config import Settings
 from .db import Database
+from .demo import build_demo_router
 from .knowledge import BusinessNotFound, load_business
 from .llm import LLMProvider, get_provider
 from .logging_setup import setup_logging
@@ -73,6 +74,8 @@ def create_app(settings: Settings | None = None, messenger: Messenger | None = N
     app.state.settings = settings
     app.state.db = db
     app.state.bot = bot
+    if settings.demo_page:
+        app.include_router(build_demo_router(settings, db, bot.llm))
 
     @app.get("/")
     async def root() -> dict[str, str]:
