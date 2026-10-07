@@ -51,6 +51,16 @@ uvicorn app.main:app --port 8000 --reload
 
 Open http://localhost:8000/health in your browser. You should see `"status": "ok"`.
 
+### WhatsApp-style demo in the browser
+
+Start the server, then open http://localhost:8000/demo . It looks like a WhatsApp chat and uses the
+real AI, but nothing is sent on WhatsApp. Good for screen-recording a demo video for clients.
+Press "New chat" to start fresh. Turn it off on a public server with `DEMO_PAGE=false`.
+
+```powershell
+python -m uvicorn app.main:app --port 8000
+```
+
 ### Chat with the bot without WhatsApp
 
 You can test the bot in the terminal. It uses the real AI if `GEMINI_API_KEY` is in `.env`.
