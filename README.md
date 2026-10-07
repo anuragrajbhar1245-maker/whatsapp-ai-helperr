@@ -185,7 +185,8 @@ and never commit `.env` (it is in `.gitignore`).
 | `VERIFY_TOKEN` | your secret word for Meta webhook verification |
 | `APP_SECRET` | Meta app secret, used to check that messages really come from Meta |
 | `ACCESS_TOKEN`, `PHONE_NUMBER_ID` | WhatsApp Cloud API details |
-| `LLM_PROVIDER` | `gemini` (default) or `anthropic` |
+| `LLM_PROVIDER` | `gemini` (default), `anthropic`, or `omniroute` |
+| `OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL` | OmniRoute / any OpenAI-compatible API (default `http://localhost:20128/v1`, `agy/gemini-3.8-flash-high`). Local only: Render cannot reach your PC's localhost. |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | Gemini key and model (default `gemini-2.5-flash`) |
 | `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Claude key and model (default `claude-haiku-4-5`) |
 | `ACTIVE_BUSINESS` | business file name without `.md` |
@@ -219,7 +220,7 @@ Files:
 ```
 app/main.py        web server, webhook, /health
 app/bot.py         bot logic (bookings, handoff, owner commands)
-app/llm.py         Gemini and Claude (plain HTTP calls, timeout, 1 retry)
+app/llm.py         Gemini, Claude and OpenAI-compatible (OmniRoute) (plain HTTP calls, timeout, 1 retry)
 app/whatsapp.py    sends WhatsApp messages
 app/db.py          SQLite (memory, bookings, paused chats, seen message ids)
 app/knowledge.py   business file + AI instructions
